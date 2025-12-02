@@ -266,3 +266,16 @@ FROM
     salaries
 ORDER BY salary
 LIMIT 10;
+
+SELECT 
+    *
+FROM
+    dept_emp
+LIMIT 100;
+
+SELECT 
+    *
+FROM
+    dept_emp
+ORDER BY emp_no DESC
+LIMIT 5;
