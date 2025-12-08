@@ -303,3 +303,313 @@ FROM
 WHERE
     d.dept_no <> dm.dept_no
 ORDER BY dm.emp_no , d.dept_no;
+
+SELECT
+    dm.*, d.*  
+FROM  
+    departments d  
+        CROSS JOIN  
+    dept_manager dm  
+WHERE  
+    d.dept_no = 'd009'  
+ORDER BY d.dept_no;
+
+SELECT 
+    e.*, d.*
+FROM
+    departments d
+        CROSS JOIN
+    employees e
+WHERE
+    e.emp_no < 10011
+ORDER BY e.emp_no , d.dept_name;
+
+SELECT 
+    dm.*, d.*
+FROM
+    departments d
+        CROSS JOIN
+    dept_manager dm
+WHERE
+    d.dept_no = 'd006';
+
+SELECT 
+    de.dept_no, d.dept_name, de.emp_no, de.from_date, de.to_date
+FROM
+    departments d
+        CROSS JOIN
+    dept_emp de
+WHERE
+    emp_no < 10003
+ORDER BY de.emp_no , d.dept_name;
+
+SELECT 
+    e.gender, AVG(s.salary) AS average_salary
+FROM
+    employees e
+        JOIN
+    salaries s ON e.emp_no = s.emp_no
+GROUP BY e.gender;
+
+SELECT 
+    e.first_name,
+    e.last_name,
+    e.hire_date,
+    dm.from_date,
+    d.dept_name
+FROM
+    employees e
+        JOIN
+    dept_manager dm ON e.emp_no = dm.emp_no
+        JOIN
+    departments d ON dm.dept_no = d.dept_no
+;
+
+SELECT 
+    e.first_name,
+    e.last_name,
+    e.hire_date,
+    t.title,
+    dm.from_date,
+    d.dept_name
+FROM
+    employees e
+        JOIN
+    dept_manager dm ON e.emp_no = dm.emp_no
+        JOIN
+    departments d ON dm.dept_no = d.dept_no
+        JOIN
+    titles t ON e.emp_no = t.emp_no
+WHERE
+    t.title = 'Manager'
+ORDER BY e.emp_no
+;
+
+SELECT 
+    e.first_name,
+    e.last_name,
+    e.hire_date,
+    t.title,
+    m.from_date,
+    d.dept_name
+FROM
+    employees e
+        JOIN
+    dept_manager m ON e.emp_no = m.emp_no
+        JOIN
+    departments d ON m.dept_no = d.dept_no
+        JOIN
+    titles t ON e.emp_no = t.emp_no
+        AND m.from_date = t.from_date
+ORDER BY e.emp_no
+;
+
+SELECT 
+    e.first_name,
+    e.last_name,
+    e.hire_date,
+    t.title,
+    de.from_date,
+    d.dept_name
+FROM
+    employees e
+        JOIN
+    dept_emp de ON e.emp_no = de.emp_no
+        JOIN
+    departments d ON de.dept_no = d.dept_no
+        JOIN
+    titles t ON e.emp_no = t.emp_no
+WHERE
+    t.title = 'Senior Engineer'
+ORDER BY e.emp_no
+;
+
+SELECT 
+    d.dept_name, AVG(s.salary)
+FROM
+    salaries s
+        JOIN
+    dept_emp de ON s.emp_no = de.emp_no
+        JOIN
+    departments d ON de.dept_no = d.dept_no
+GROUP BY d.dept_name
+;
+
+SELECT 
+    d.dept_name, AVG(s.salary) AS average_salary
+FROM
+    salaries s
+        JOIN
+    dept_manager dm ON s.emp_no = dm.emp_no
+        JOIN
+    departments d ON dm.dept_no = d.dept_no
+GROUP BY d.dept_name
+ORDER BY d.dept_no
+;
+
+SELECT 
+    d.dept_name, AVG(s.salary) AS average_salary
+FROM
+    salaries s
+        JOIN
+    dept_manager dm ON s.emp_no = dm.emp_no
+        JOIN
+    departments d ON dm.dept_no = d.dept_no
+GROUP BY d.dept_name
+HAVING average_salary > 60000
+ORDER BY average_salary DESC
+;
+
+SELECT 
+    e.gender, COUNT(e.emp_no) AS count_managers
+FROM
+    titles t
+        JOIN
+    employees e ON t.emp_no = e.emp_no
+WHERE
+    title = 'Manager'
+GROUP BY e.gender;
+
+SELECT 
+    COUNT(*)
+FROM
+    employees
+GROUP BY gender;
+
+SELECT 
+    e.gender, COUNT(e.emp_no) AS count_managers
+FROM
+    dept_manager dm
+        JOIN
+    employees e ON dm.emp_no = e.emp_no
+GROUP BY e.gender;
+
+SELECT 
+    t.title, round(AVG(s.salary),2) AS average_salary
+FROM
+    titles t
+        JOIN
+     salaries s ON s.emp_no = t.emp_no
+GROUP BY t.title
+HAVING average_salary < 75000
+ORDER BY average_salary DESC;
+
+-- UNION & UNION ALL
+
+DROP TABLE IF EXISTS employees_dup;
+CREATE TABLE employees_dup (
+   emp_no int(11),
+   birth_date date,
+   first_name varchar(14),
+   last_name varchar(16),
+   gender enum('M','F'),
+   hire_date date
+  );
+  
+INSERT INTO employees_dup 
+SELECT 
+    e.*
+FROM
+    employees e
+LIMIT 20;
+
+-- Check
+SELECT 
+    *
+FROM
+    employees_dup
+;
+
+INSERT INTO employees_dup VALUES
+('10001', '1953-09-02', 'Georgi', 'Facello', 'M', '1986-06-26');
+
+-- Check
+SELECT 
+    *
+FROM
+    employees_dup;
+    
+
+-- UNION ALL
+SELECT 
+    e.emp_no,
+    e.first_name,
+    e.last_name,
+    NULL AS dept_no,
+    NULL AS from_date
+FROM
+    employees_dup e
+WHERE
+    e.emp_no = 10001 
+UNION ALL SELECT 
+    NULL AS emp_no,
+    NULL AS first_name,
+    NULL AS last_name,
+    m.dept_no,
+    m.from_date
+FROM
+    dept_manager m;
+    
+-- UNION
+SELECT 
+    e.emp_no,
+    e.first_name,
+    e.last_name,
+    NULL AS dept_no,
+    NULL AS from_date
+FROM
+    employees_dup e
+WHERE
+    e.emp_no = 10001 
+UNION SELECT 
+    NULL AS emp_no,
+    NULL AS first_name,
+    NULL AS last_name,
+    m.dept_no,
+    m.from_date
+FROM
+    dept_manager m;
+   
+SELECT 
+    *
+FROM
+    (SELECT 
+        e.emp_no,
+            e.first_name,
+            e.last_name,
+            NULL AS dept_no,
+            NULL AS from_date
+    FROM
+        employees e
+    WHERE
+        last_name = 'Denis' UNION SELECT 
+        NULL AS emp_no,
+            NULL AS first_name,
+            NULL AS last_name,
+            dm.dept_no,
+            dm.from_date
+    FROM
+        dept_manager dm) AS a
+ORDER BY - a.emp_no DESC;
+
+SELECT 
+    *
+FROM
+    (SELECT 
+        e.emp_no,
+            e.first_name,
+            e.last_name,
+            NULL AS dept_no,
+            NULL AS from_date
+    FROM
+        employees_dup e
+    WHERE
+        e.last_name = 'Bamford' UNION ALL SELECT 
+        NULL AS emp_no,
+            NULL AS first_name,
+            NULL AS last_name,
+            m.dept_no,
+            m.from_date
+    FROM
+        dept_manager m) AS a
+ORDER BY - a.emp_no DESC;
