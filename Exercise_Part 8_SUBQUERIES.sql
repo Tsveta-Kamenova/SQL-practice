@@ -180,7 +180,8 @@ SELECT
 FROM
     emp_manager;
     
-    
+COMMIT;
+
 INSERT INTO
     emp_manager
 SELECT
@@ -368,4 +369,4 @@ FROM
         titles
     WHERE
         title IN ('Staff' , 'Engineer')) AS t
-ORDER BY avg_salary DESC;
+ORDER BY average_salary DESC;
