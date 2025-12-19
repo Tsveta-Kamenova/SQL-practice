@@ -1,3 +1,7 @@
+/*
+ROUTINES, PROCEDURES AND VARIABLES
+*/
+
 USE employees;
 
 DROP PROCEDURE IF EXISTS select_employees;
